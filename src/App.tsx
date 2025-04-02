@@ -1,14 +1,20 @@
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+import HomePage from "./components/Homepage";
 
 export default function App() {
   return (
-    <header className="justify-end">
+    <>
       <SignedOut>
-        <SignInButton />
+        <HomePage />
       </SignedOut>
+      
       <SignedIn>
-        <UserButton />
+        <header className="justify-end">
+          <UserButton />
+        </header>
+        <div>
+        </div>
       </SignedIn>
-    </header>
+    </>
   );
 }

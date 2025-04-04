@@ -7,4 +7,4 @@ export interface User {
     imageUrL: string;
     createdAt: Timestamp | FieldValue;
     updateAt: Timestamp | FieldValue;
-}
+};

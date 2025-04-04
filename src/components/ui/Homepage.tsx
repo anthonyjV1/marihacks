@@ -32,7 +32,6 @@ const HomePage = () => {
   // Cursor trail effect
   useEffect(() => {
     if (!cursorRef.current) return;
-    
     const trailCount = 12;
     const trailColors = [
       '#4f46e5', '#5e54e8', '#6d62eb', '#7c70ee', 

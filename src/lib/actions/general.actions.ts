@@ -4,14 +4,34 @@ import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 
 
-import { feedbackSchema } from "@/constants";
-import { db } from "@/config/firebase.config";
+import { feedbackSchema, Interview } from "@/constants";
+import admin from "firebase-admin";
 
+// Initialize Firebase Admin SDK if not already initialized
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.applicationDefault(),
+  });
+}
+
+export const db = admin.firestore();
 interface CreateFeedbackParams {
   interviewId: string;
   userId: string;
   transcript: { role: string; content: string }[];
   feedbackId?: string;
+}
+
+interface Feedback {
+  id: string;
+  interviewId: string;
+  userId: string;
+  totalScore: number;
+  categoryScores: Record<string, number>;
+  strengths: string[];
+  areasForImprovement: string[];
+  finalAssessment: string;
+  createdAt: string;
 }
 
 export async function createFeedback(params: CreateFeedbackParams) {
@@ -80,6 +100,11 @@ export async function getInterviewById(id: string): Promise<Interview | null> {
   return interview.data() as Interview | null;
 }
 
+interface GetFeedbackByInterviewIdParams {
+  interviewId: string;
+  userId: string;
+}
+
 export async function getFeedbackByInterviewId(
   params: GetFeedbackByInterviewIdParams
 ): Promise<Feedback | null> {
@@ -98,6 +123,11 @@ export async function getFeedbackByInterviewId(
   return { id: feedbackDoc.id, ...feedbackDoc.data() } as Feedback;
 }
 
+interface GetLatestInterviewsParams {
+  userId: string;
+  limit?: number;
+}
+
 export async function getLatestInterviews(
   params: GetLatestInterviewsParams
 ): Promise<Interview[] | null> {
@@ -111,9 +141,9 @@ export async function getLatestInterviews(
     .limit(limit)
     .get();
 
-  return interviews.docs.map((doc) => ({
+  return interviews.docs.map((doc: { id: unknown; data: () => Record<string, unknown>; }) => ({
     id: doc.id,
-    ...doc.data(),
+    ...(doc.data() as Record<string, unknown>),
   })) as Interview[];
 }
 
@@ -128,6 +158,6 @@ export async function getInterviewsByUserId(
 
   return interviews.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data(),
+    ...(doc.data() as Record<string, unknown>),
   })) as Interview[];
 }

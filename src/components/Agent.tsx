@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom"; // or your routing solution
 import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
 import { interviewer } from "@/constants";
-import { createFeedback } from "@/lib/actions/general.action";
+import { createFeedback } from "@/lib/actions/general.actions";
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -52,9 +52,17 @@ const Agent = ({
       setCallStatus(CallStatus.FINISHED);
     };
 
-    const onMessage = (message: any) => { // Adjust type as needed
-      if (message.type === "transcript" && message.transcriptType === "final") {
-        const newMessage = { role: message.role, content: message.transcript };
+    interface Message {
+      type: string;
+      transcriptType?: string;
+      role?: "user" | "system" | "assistant";
+      transcript?: string;
+    }
+
+    const onMessage = (message: unknown) => {
+      const typedMessage = message as Message;
+      if (typedMessage.type === "transcript" && typedMessage.transcriptType === "final") {
+        const newMessage = { role: typedMessage.role!, content: typedMessage.transcript! };
         setMessages((prev) => [...prev, newMessage]);
       }
     };
